@@ -134,7 +134,7 @@ document.addEventListener('DOMContentLoaded', function () {
   var viewer = new Marzipano.Viewer(panoElement, viewerOpts);
 
   // Set a fixed cache-busting version string for this tour build (update this when you re-generate the tour)
-  var cacheBuster = 'v=250710-1300'; // Example: v=YYMMDD-HHMM, update as needed for each build
+  var cacheBuster = 'v=251025-1000'; // Example: v=YYMMDD-HHMM, update as needed for each build
 
   // Create scenes.
   var scenes = data.scenes.map(function (data) {
@@ -364,52 +364,24 @@ document.addEventListener('DOMContentLoaded', function () {
     });
   }
 
-  // todo: this is only for small house
-  let currentScene = null;
-
   // Update the switchScene function to include active state updates
-  // todo: this is only for small house (Replace this function later)
   function switchScene(scene, preserveView = false) {
-
-    let previousSceneName = currentScene ? currentScene.data.name : null;
-
-    // Determine if special view angle should be applied
-    const isTargetEntryScene = scene.data.name === "Entry - 1 - 1F";
-    const isFromExterior = previousSceneName === "Exterior view - M - 1F";
-
-    let customParams = null;
-    if (isTargetEntryScene && isFromExterior) {
-      customParams = {
-        yaw: Math.PI / 1,   // 180 degrees
-        pitch: Math.PI / 25 // ≈7.2 degrees
-      };
-    }
-
-    // Store current view before switching, if preserving view
+    // stopAutorotate();
     let currentViewParams = null;
     if (preserveView) {
+      // Get current view parameters from the active view
       currentViewParams = viewer.view().parameters();
     }
-
-    // Actually switch the scene
     scene.scene.switchTo();
-
-    // Set view parameters
-    if (customParams) {
-      scene.view.setParameters(customParams);
-    } else if (preserveView && currentViewParams) {
+    if (preserveView && currentViewParams) {
       scene.view.setParameters(currentViewParams);
-    } else {
+    } else if (!preserveView) {
       scene.view.setParameters(scene.data.initialViewParameters);
     }
-
+    // startAutorotate();
     updateSceneName(scene);
     updateActiveStates(scene);
-
-    // Update current scene reference
-    currentScene = scene;
   }
-  // todo: -----------------END-----------------
 
   function updateSceneName(scene) {
     // Remove the -1F, -2F, -3F suffix for display
@@ -516,7 +488,7 @@ document.addEventListener('DOMContentLoaded', function () {
             item.classList.remove('active');
           }
         });
-      } else if (active2F && targetSceneDataName.includes("Hallway - E - 1F")) {
+      } else if (active2F && targetSceneDataName.includes("Great Room - ME - 1F")) {
         // Find and activate the 1F floor item
         document.querySelectorAll('.floor-item').forEach(function (item) {
           if (item.textContent.trim() === '1F') {
